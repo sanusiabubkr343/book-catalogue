@@ -154,4 +154,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-RABBITMQ_URL=""
+RABBITMQ_URL=config("RABBITMQ_URL")
