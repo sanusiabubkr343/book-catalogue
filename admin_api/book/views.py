@@ -1,15 +1,12 @@
 from rest_framework import viewsets,mixins
 from .models import AdminBook, User
 from .serializers import AdminBookSerializer,AdminCreateBookSerializer, UnavailableBooksSerializer, UserSerializer, UsersAndBorrowedBooksSerializer
-import redis
 import json
+import pika
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-
-
-redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
+from django.conf import settings
 
 class AdminBookViewSet(viewsets.ModelViewSet):
     queryset = AdminBook.objects.all()
@@ -17,10 +14,13 @@ class AdminBookViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
     def sync_with_frontend(self, data, event_type):
+        connection = pika.BlockingConnection(pika.ConnectionParameters(settings.RABBITMQ_URL))
+        channel = connection.channel()
+        channel.queue_declare(queue='book_updates', durable=True)
         event = {
             'event_type': event_type,
             'book_data': {
-                'external_id': data['external_id'],
+                'external_id': data['id'],
                 'title': data['title'],
                 'author': data['author'],
                 'publisher': data['publisher'],
@@ -28,7 +28,8 @@ class AdminBookViewSet(viewsets.ModelViewSet):
                 'is_available': data['is_available'],
             }
         }
-        redis_client.publish('book_updates', json.dumps(event))
+        channel.basic_publish(exchange='', routing_key='book_updates', body=json.dumps(event))
+        connection.close()
 
 
     def get_serializer_class(self):
@@ -48,7 +49,7 @@ class AdminBookViewSet(viewsets.ModelViewSet):
         self.sync_with_frontend(serializer.data, 'update')
 
     def perform_destroy(self, instance):
-        self.sync_with_frontend(instance, 'delete')
+        self.sync_with_frontend({'id': str(instance.id)}, 'delete')
         instance.delete()
     
     @action(

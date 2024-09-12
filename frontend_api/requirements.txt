@@ -19,3 +19,4 @@ drf-spectacular
 python-dotenv
 gunicorn
 redis
+amqp
