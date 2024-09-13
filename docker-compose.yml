@@ -9,9 +9,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-    depends_on:
-      - rabbitmq
+      - DJANGO_SETTINGS_MODULE=core.settings
     volumes:
       - ./admin_api:/app
     command: >
@@ -29,9 +27,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-    depends_on:
-      - rabbitmq
+      - DJANGO_SETTINGS_MODULE=core.settings
     volumes:
       - ./frontend_api:/app
     command: >
@@ -40,16 +36,6 @@ services:
         python manage.py migrate &&
         python manage.py runserver 0.0.0.0:8000
       "
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    hostname: rabbitmq
-    networks:
-      - default
 
   consumer_admin:
     build:
@@ -66,11 +52,12 @@ services:
         python consumers.py
       "
     environment:
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
       - DJANGO_SETTINGS_MODULE=core.settings
-    depends_on:
-      - admin_api
-      - rabbitmq
+    healthcheck:
+      test: ["CMD", "python", "/app/consumers.py"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   consumer_frontend:
     build:
@@ -87,11 +74,12 @@ services:
         python consumers.py
       "
     environment:
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
       - DJANGO_SETTINGS_MODULE=core.settings
-    depends_on:
-      - frontend_api
-      - rabbitmq
+    healthcheck:
+      test: ["CMD", "python", "/app/consumers.py"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   default:

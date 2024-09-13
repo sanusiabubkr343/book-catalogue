@@ -14,13 +14,14 @@ class AdminBookViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
     def sync_with_frontend(self, data, event_type):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(settings.RABBITMQ_URL))
+        parameters = pika.URLParameters(settings.RABBITMQ_URL)
+        connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
         channel.queue_declare(queue='book_updates', durable=True)
         event = {
             'event_type': event_type,
             'book_data': {
-                'external_id': data['id'],
+                'external_id': data['external_id'],
                 'title': data['title'],
                 'author': data['author'],
                 'publisher': data['publisher'],

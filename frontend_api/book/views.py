@@ -17,9 +17,11 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
     http_method_names = ["post", "patch", "put", "delete"]
+    
 
     def sync_with_admin(self, data, event_type):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(settings.RABBITMQ_URL))
+        parameters = pika.URLParameters(settings.RABBITMQ_URL)
+        connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
         channel.queue_declare(queue='user_updates', durable=True)
         
@@ -43,9 +45,14 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
         self.sync_with_admin(serializer.data, 'update')
 
+
     def perform_destroy(self, instance):
-        self.sync_with_admin({'id': str(instance.id)}, 'delete')
+        data = UserSerializer(instance).data
+        self.sync_with_admin(data, 'delete')
         instance.delete()
+
+    
+
 
 
 class BookViewSet(mixins.ListModelMixin,
