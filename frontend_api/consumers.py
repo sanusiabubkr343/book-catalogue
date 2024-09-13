@@ -43,7 +43,7 @@ def process_book_updates(ch, method, properties, body):
 
 def start_book_update_consumer():
     
-    connection = pika.BlockingConnection(pika.ConnectionParameters(settings.RABBITMQ_URL))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(f'amqp://guest:guest@rabbitmq:5672/'))
     channel = connection.channel()
     channel.queue_declare(queue='book_updates', durable=True)
     channel.basic_consume(queue='book_updates', on_message_callback=process_book_updates, auto_ack=True)

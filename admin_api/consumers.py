@@ -66,7 +66,7 @@ def process_user_updates(ch, method, properties, body):
 
 
 def start_user_update_consumer():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(settings.RABBITMQ_URL))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(f'amqp://guest:guest@rabbitmq:5672/'))
     channel = connection.channel()
     
     # Declaring the user_updates queue
