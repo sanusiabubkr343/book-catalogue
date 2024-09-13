@@ -3,27 +3,43 @@ version: '3'
 services:
   admin_api:
     build:
-      context: .
-      dockerfile: admin_api/Dockerfile
+      context: ./admin_api
+      dockerfile: Dockerfile
     container_name: admin_api
     ports:
       - "8080:8080"
     environment:
-      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
       - rabbitmq
+    volumes:
+      - ./admin_api:/app
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8080
+      "
 
   frontend_api:
     build:
-      context: .
-      dockerfile: frontend_api/Dockerfile
+      context: ./frontend_api
+      dockerfile: Dockerfile
     container_name: frontend_api
     ports:
       - "8000:8000"
     environment:
-      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
       - rabbitmq
+    volumes:
+      - ./frontend_api:/app
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python manage.py runserver 0.0.0.0:8000
+      "
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -31,33 +47,54 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    hostname: rabbitmq
+    networks:
+      - default
 
   consumer_admin:
     build:
-      context: .
-      dockerfile: admin_api/Dockerfile
+      context: ./admin_api
+      dockerfile: Dockerfile
     container_name: consumer_admin
-    working_dir: /app/admin_api
+    working_dir: /app
     volumes:
-      - ./admin_api:/app/admin_api
-    command: python consumers.py
+      - ./admin_api:/app
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python consumers.py
+      "
     environment:
-      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - DJANGO_SETTINGS_MODULE=core.settings
     depends_on:
       - admin_api
       - rabbitmq
 
   consumer_frontend:
     build:
-      context: .
-      dockerfile: frontend_api/Dockerfile
+      context: ./frontend_api
+      dockerfile: Dockerfile
     container_name: consumer_frontend
-    working_dir: /app/frontend_api
+    working_dir: /app
     volumes:
-      - ./frontend_api:/app/frontend_api
-    command: python consumers.py
+      - ./frontend_api:/app
+    command: >
+      sh -c "
+        python manage.py makemigrations &&
+        python manage.py migrate &&
+        python consumers.py
+      "
     environment:
-      - RABBITMQ_URL=amqp://rabbitmq
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - frontend_api
+      - rabbitmq
     depends_on:
       - frontend_api
       - rabbitmq
+
+networks:
+  default:
+    driver: bridge

@@ -1,8 +1,16 @@
 import pika
 import json
+import os
+import django
 
-from frontend_api.book.models import Book
+# Set up Django environment
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')  
+django.setup()
+
+
 from django.conf import settings
+
+from book.models import User,Book
 
 
 def process_book_updates(ch, method, properties, body):
@@ -40,3 +48,8 @@ def start_book_update_consumer():
     channel.queue_declare(queue='book_updates', durable=True)
     channel.basic_consume(queue='book_updates', on_message_callback=process_book_updates, auto_ack=True)
     channel.start_consuming()
+
+
+
+if __name__ == '__main__':
+    start_book_update_consumer()

@@ -73,6 +73,7 @@ class UserViewSet( mixins.ListModelMixin,
     queryset = User.objects.prefetch_related('books')
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+    
 
     def get_queryset(self):
         return super().get_queryset()

@@ -10,7 +10,7 @@ class AdminCreateBookSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminBook
         fields = '__all__'
-        read_only_fields = ["id","borrowed_by","borrowed_until","created_at","updated_at"]
+        read_only_fields = ["id","borrowed_by","borrowed_until","created_at","updated_at","is_available"]
 
 
 class UnavailableBooksSerializer(serializers.ModelSerializer):

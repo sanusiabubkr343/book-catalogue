@@ -15,6 +15,8 @@ SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = config("DEBUG", default="False") == "True"
 
+RABBITMQ_URL = config("RABBITMQ_URL")
+
 ALLOWED_HOSTS = ["*"]
 
 
@@ -32,7 +34,7 @@ INSTALLED_APPS = [
     "corsheaders",
     'drf_spectacular',
     'rest_framework',
-    "debug_toolbar",
+    # "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -44,7 +46,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
@@ -95,8 +97,8 @@ SPECTACULAR_SETTINGS = {
         "displayOperationId": True,
     },
     "UPLOADED_FILES_USE_URL": True,
-    "TITLE": "FRONTEND API ",
-    "DESCRIPTION": "APIs to manage book storage for frontend",
+    "TITLE": "ADMIN API ",
+    "DESCRIPTION": "APIs to manage book storage for admin-backend",
     "VERSION": "1.0.0",
     "LICENCE": {"name": "BSD License"},
     "CONTACT": {"name": "Sanusi Abubakr", "email": "sanusiabubakr343@gmail.com"},
@@ -154,4 +156,3 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-RABBITMQ_URL=config("RABBITMQ_URL")

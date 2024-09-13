@@ -1,8 +1,18 @@
 import pika
 import json
-from frontend_api.book.models import Book, User
+import os
+import django
+
+# Set up Django environment
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')  
+django.setup()
+
 from django.conf import settings
 from django.utils.dateparse import parse_date
+
+from book.models import AdminBook,User
+
+print(settings.RABBITMQ_URL)
 
 
 def process_borrowed_books_updates(ch, method, properties, body):
@@ -12,7 +22,7 @@ def process_borrowed_books_updates(ch, method, properties, body):
 
     try:
         if event_type == 'borrow':
-            book = Book.objects.get(external_id=book_data['external_id'])
+            book = AdminBook.objects.get(external_id=book_data['external_id'])
             book.title = book_data['title']
             book.author = book_data['author']
             book.publisher = book_data['publisher']
@@ -24,7 +34,7 @@ def process_borrowed_books_updates(ch, method, properties, body):
                 book.borrowed_until = parse_date(book_data['borrowed_until'])
             book.save()
         
-    except Book.DoesNotExist:
+    except AdminBook.DoesNotExist:
         pass
     except User.DoesNotExist:
         pass
@@ -69,3 +79,7 @@ def start_user_update_consumer():
     
     # Start consuming messages from the queues
     channel.start_consuming()
+
+
+if __name__ == '__main__':
+    start_user_update_consumer()
