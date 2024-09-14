@@ -50,8 +50,10 @@ class AdminBookViewSet(viewsets.ModelViewSet):
         self.sync_with_frontend(serializer.data, 'update')
 
     def perform_destroy(self, instance):
-        self.sync_with_frontend({'id': str(instance.id)}, 'delete')
+        data = AdminBookSerializer(instance).data
+        self.sync_with_frontend(data, 'delete')
         instance.delete()
+
 
     def paginate_results(self, queryset, serializer=None):
         page = self.paginate_queryset(queryset)
@@ -81,7 +83,7 @@ class UserViewSet( mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet):
     """Already contains list and get endpoints for users"""
-    queryset = User.objects.prefetch_related('books')
+    queryset = User.objects.filter().values('email').prefetch_related('books')
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
     
