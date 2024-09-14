@@ -2,11 +2,11 @@ from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from django.utils.timezone import now
-from datetime import timedelta
+from django.utils import timezone
 from rest_framework.permissions import AllowAny
 import json
 import pika
+
 
 from .models import Book, User
 from .serializers import BookSerializer, BorrowerSerializer, UserSerializer
@@ -16,7 +16,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-    http_method_names = ["post", "patch", "put", "delete"]
+    http_method_names = ["post", "patch", "put", "delete","get"]
     
 
     def sync_with_admin(self, data, event_type):
@@ -67,9 +67,10 @@ class BookViewSet(mixins.ListModelMixin,
     permission_classes = [AllowAny]
 
     def sync_with_admin(self, data, event_type):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(settings.RABBITMQ_URL))
+        parameters = pika.URLParameters(settings.RABBITMQ_URL)
+        connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
-        channel.queue_declare(queue='book_updates', durable=True)
+        channel.queue_declare(queue='borrow_updates', durable=True)
         
         event = {
             'event_type': event_type,
@@ -84,7 +85,7 @@ class BookViewSet(mixins.ListModelMixin,
                 'is_available': data['is_available'],
             }
         }
-        channel.basic_publish(exchange='', routing_key='book_updates', body=json.dumps(event))
+        channel.basic_publish(exchange='', routing_key='borrow_updates', body=json.dumps(event))
         connection.close()
 
     @action(detail=True, methods=['post'], serializer_class=BorrowerSerializer)
@@ -99,7 +100,8 @@ class BookViewSet(mixins.ListModelMixin,
 
         user, _ = User.objects.get_or_create(email=user_email)
         book.borrowed_by = user
-        book.borrowed_until = now() + timedelta(days=days)
+        end_date = timezone.now() + timezone.timedelta(days=days)
+        book.borrowed_until =end_date
         book.is_available = False
         book.save()
 

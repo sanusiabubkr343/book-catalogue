@@ -18,7 +18,7 @@ class Book(models.Model):
     category = models.CharField(max_length=255)
     is_available = models.BooleanField(default=True)
     borrowed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
-    borrowed_until = models.DateField(null=True, blank=True)
+    borrowed_until = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
     

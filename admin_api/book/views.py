@@ -21,7 +21,7 @@ class AdminBookViewSet(viewsets.ModelViewSet):
         event = {
             'event_type': event_type,
             'book_data': {
-                'external_id': data['external_id'],
+                'external_id': data['id'],
                 'title': data['title'],
                 'author': data['author'],
                 'publisher': data['publisher'],
@@ -52,6 +52,15 @@ class AdminBookViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         self.sync_with_frontend({'id': str(instance.id)}, 'delete')
         instance.delete()
+
+    def paginate_results(self, queryset, serializer=None):
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer if not serializer else serializer
+        if page is not None:
+            serializer = serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = serializer(queryset, many=True)
+        return Response(serializer.data)
     
     @action(
         methods=['GET'],
@@ -62,7 +71,8 @@ class AdminBookViewSet(viewsets.ModelViewSet):
     )
 
     def list_borrowed_books_with_available_date(self,request,pk=None):
-        qs = self.get_queryset().exclude(is_available=True).filter(borrowed_until__isnull=False)
+        qs = self.get_queryset().exclude(is_available=True).filter(borrowed_until__isnull=False).all()
+        
         return self.paginate_results(qs,UnavailableBooksSerializer)
 
 

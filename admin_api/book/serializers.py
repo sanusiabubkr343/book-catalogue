@@ -14,7 +14,7 @@ class AdminCreateBookSerializer(serializers.ModelSerializer):
 
 
 class UnavailableBooksSerializer(serializers.ModelSerializer):
-    available_date = serializers.DateField(read_only=True,source='borrowed_until')
+    available_date = serializers.DateTimeField(read_only=True,source='borrowed_until')
     class Meta:
         model = AdminBook
         fields = '__all__'

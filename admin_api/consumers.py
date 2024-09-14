@@ -15,23 +15,24 @@ from book.models import AdminBook,User
 print(settings.RABBITMQ_URL)
 
 
-def process_borrowed_books_updates(ch, method, properties, body):
+def process_borrowed_updates(ch, method, properties, body):
     data = json.loads(body)
     event_type = data['event_type']
     book_data = data['book_data']
 
     try:
         if event_type == 'borrow':
-            book = AdminBook.objects.get(external_id=book_data['external_id'])
+           
+            book = AdminBook.objects.get(id=book_data['external_id'])
             book.title = book_data['title']
             book.author = book_data['author']
             book.publisher = book_data['publisher']
             book.category = book_data['category']
             book.is_available = book_data['is_available']
-            if book_data['borrowed_by']:
-                book.borrowed_by = User.objects.get(external_id=book_data['borrowed_by'])
-            if book_data['borrowed_until']:
-                book.borrowed_until = parse_date(book_data['borrowed_until'])
+            
+            book.borrowed_by,_ = User.objects.get_or_create(external_id=book_data['borrowed_by'])
+            
+            book.borrowed_until = (book_data['borrowed_until'])
             book.save()
         
     except AdminBook.DoesNotExist:
@@ -75,8 +76,8 @@ def start_user_update_consumer():
     channel.basic_consume(queue='user_updates', on_message_callback=process_user_updates, auto_ack=True)
     
     # Declaring the book_updates queue
-    channel.queue_declare(queue='book_updates', durable=True)
-    channel.basic_consume(queue='book_updates', on_message_callback=process_borrowed_books_updates, auto_ack=True)
+    channel.queue_declare(queue='borrow_updates', durable=True)
+    channel.basic_consume(queue='borrow_updates', on_message_callback=process_borrowed_updates, auto_ack=True)
     
     # Start consuming messages from the queues
     channel.start_consuming()
