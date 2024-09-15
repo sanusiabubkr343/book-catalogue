@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.conf import settings
+from django.db.models import Prefetch
 
 class AdminBookViewSet(viewsets.ModelViewSet):
     queryset = AdminBook.objects.all()
@@ -83,13 +84,11 @@ class UserViewSet( mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet):
     """Already contains list and get endpoints for users"""
-    queryset = User.objects.filter().values('email').prefetch_related('books')
+    queryset = User.objects.prefetch_related('books').all()
+   
+
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-    
-
-    def get_queryset(self):
-        return super().get_queryset()
     
     def paginate_results(self, queryset, serializer=None):
         page = self.paginate_queryset(queryset)
@@ -99,7 +98,6 @@ class UserViewSet( mixins.ListModelMixin,
             return self.get_paginated_response(serializer.data)
         serializer = serializer(queryset, many=True)
         return Response(serializer.data)
-
     
 
     @action(
@@ -110,10 +108,18 @@ class UserViewSet( mixins.ListModelMixin,
         url_path='list-users-and-borrowed-books',
     )
 
-    def list_users_and_borrowed_books(self,request,pk=None):
-        qs = self.get_queryset()
+    def list_users_and_borrowed_books(self, request):
+        users = self.get_queryset()
+        qs = [{"user": user, "books_borrowed": user.books.all()} for user in users]
+
         return self.paginate_results(qs,UsersAndBorrowedBooksSerializer)
-    
+        
+        
+        
+            
+
+        
+     
 
 
     

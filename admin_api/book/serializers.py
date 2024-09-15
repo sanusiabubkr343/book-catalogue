@@ -31,13 +31,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id",'email', 'first_name', 'last_name','external_id']
 
 
-
-class UsersAndBorrowedBooksSerializer(serializers.ModelSerializer):
-    borrowed_books = AdminBookSerializer(many=True,source='books')
-    class Meta:
-        model = User
-        fields = ['email', 'first_name', 'last_name','borrowed_books']
-
-     
+class UsersAndBorrowedBooksSerializer(serializers.Serializer):
+    user = UserSerializer()
+    books_borrowed = AdminBookSerializer(many=True)
 
 
+   
