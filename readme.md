@@ -36,13 +36,13 @@ Unit tests are included for both services. To run tests:
 3. Run `docker-compose exec <service_name> pytest -vv`
 
 Example test output: 
-    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20124930.png)
+    ![screenshots](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20124930.png)
 
-    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20204352.png)
+    ![screenshots2](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20204352.png)
 
-    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20231442.png)
+    ![screenshots3](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20231442.png)
 
-    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-15%20211337.png)
+    ![screenshots4](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-15%20211337.png)
 
 
 
