@@ -35,12 +35,14 @@ Unit tests are included for both services. To run tests:
 2. Navigate to the service directory (e.g., `cd admin_api`)
 3. Run `docker-compose exec <service_name> pytest -vv`
 
-Example test output:
-![Register Endpoint](https://github.com/sanusiabubkr343/task_management_system/assets/68224344/6a0db9ac-a518-4e1b-aba2-4df6f1128ba2)
+Example test output: 
+    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20124930.png)
 
-![Register Endpoint](https://github.com/sanusiabubkr343/task_management_system/assets/68224344/6a0db9ac-a518-4e1b-aba2-4df6f1128ba2)
+    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20204352.png)
 
-![Register Endpoint](https://github.com/sanusiabubkr343/task_management_system/assets/68224344/6a0db9ac-a518-4e1b-aba2-4df6f1128ba2)
+    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-14%20231442.png)
+
+    ![Register Endpoint](https://github.com/sanusiabubkr343/book-catalogue/blob/main/Screenshot%202024-09-15%20211337.png)
 
 
 
