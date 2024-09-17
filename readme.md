@@ -4,7 +4,7 @@ This project implements a library management system with two main components:
 1. Admin API
 2. Frontend API
 
-Both services use RabbitMQ for seamless communication, allowing real-time updates between systems.
+Both services use Pub/sub messaging patterns with aid of  RabbitMQ for seamless communication, allowing real-time updates between systems.
 
 ## Features
 
